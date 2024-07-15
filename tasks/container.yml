@@ -1,0 +1,26 @@
+---
+- name: Install containerd
+  ansibe.builtin.apt:
+    name: containerd
+    state: present
+    update_cache: true
+
+- name: Create containerd config dir
+  ansible.builtin.file:
+    path: '{{ containerd_config_dir }}'
+    state: directory
+    recurse: true
+
+- name: Create containerd config file
+  ansible.builtin.command: "containerd config default | tee {{ containerd_config_dir }}/{{ containerd_config_file }}"
+  become: true
+  become_user: root
+  register: containerd_config
+  changed_when: containerd_config.rc != 0
+
+- name: Changes in default containerd config file
+  ansible.builtin.lineinfile:
+    path: "{{ containerd_config_dir }}/{{ containerd_config_file }}"
+    regexp: '^(\s*SystemdCgroup\s*=\s*)false'
+    line: '\1true'
+  notify: Restart containerd

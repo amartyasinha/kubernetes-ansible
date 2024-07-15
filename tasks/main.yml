@@ -1,2 +1,7 @@
 ---
 # tasks file for kubernetes-ansible
+- name: Include containerd task
+  ansible.builtin.include_tasks: containerd.yml
+
+- name: Include swapoff task
+  ansible.builtin.include_tasks: swapoff.yml

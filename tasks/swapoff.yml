@@ -1,0 +1,13 @@
+---
+- name: Disable swap
+  ansible.builtin.command: "swapoff -a"
+  become: true
+  become_user: root
+  register: isSwapOff
+  changed_when: isSwapOff.rc != 0
+
+- name: Make change permanent
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: '.*swap.*'
+    line: '# \g<0>'

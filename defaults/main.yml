@@ -1,2 +1,4 @@
 ---
 # defaults file for kubernetes-ansible
+containerd_config_dir: "/etc/containerd"
+containerd_config_file: "config.toml"
