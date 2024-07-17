@@ -2,3 +2,17 @@
 # defaults file for kubernetes-ansible
 containerd_config_dir: "/etc/containerd"
 containerd_config_file: "config.toml"
+k8s_deps: [
+            'apt-transport-https',
+            'ca-certificates'
+          ]
+
+kubernetes_version: "1.30"
+kubernetes_apt_repo: "https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_version }}/deb/"
+kubernetes_key_file: "/etc/apt/keyrings/kubernetes-apt-keyring.asc"
+kubernetes_packages: [
+                      'kubeadm',
+                      'kubelet',
+                      'kubectl'
+                     ]
+

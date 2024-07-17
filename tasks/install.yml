@@ -1,0 +1,43 @@
+---
+
+- name: Install deps
+  become: true
+  become_user: root
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  loop: "{{ k8s_deps }}"
+
+- name: Import Kubernetes repository key
+  become: true
+  become_user: root
+  ansible.builtin.get_url:
+    url: '{{ kubernetes_apt_repo }}Release.key'
+    dest: '{{ kubernetes_key_file }}'
+  register: import_result
+  retries: 3
+  delay: 1
+  until: import_result is succeeded
+
+- name: Add Kubernetes repository
+  become: true
+  become_user: root
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ kubernetes_key_file }}] {{ kubernetes_apt_repo }} /"
+    state: present
+
+- name: Update apt cache
+  become: true
+  become_user: root
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install Kubernetes packages
+  become: true
+  become_user: root
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ kubernetes_packages }}"
+  

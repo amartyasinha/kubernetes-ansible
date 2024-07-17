@@ -2,3 +2,6 @@
 # tasks file for kubernetes-ansible
 - name: Include Prequisites
   ansible.builtin.include_tasks: prerequisites.yml
+
+- name: Include Install task
+  ansible.builtin.include_tasks: install.yml
