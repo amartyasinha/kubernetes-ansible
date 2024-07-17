@@ -1,0 +1,10 @@
+[k8s-master]
+node1
+
+[k8s-worker]
+node2
+node3
+
+[k8s-common:children]
+k8s-master
+k8s-worker

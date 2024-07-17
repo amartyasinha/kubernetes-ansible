@@ -1,0 +1,5 @@
+---
+- name: Sample inclusion of kubernetes-ansible role
+  hosts: k8s-common
+  roles:
+    - kubernetes-ansible
