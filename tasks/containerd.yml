@@ -4,12 +4,16 @@
     name: containerd
     state: present
     update_cache: true
+  become: true
+  become_user: root
 
 - name: Create containerd config dir
   ansible.builtin.file:
     path: '{{ containerd_config_dir }}'
     state: directory
     recurse: true
+  become: true
+  become_user: root
 
 - name: Create containerd config file
   ansible.builtin.command: "containerd config default | tee {{ containerd_config_dir }}/{{ containerd_config_file }}"
@@ -23,4 +27,6 @@
     path: "{{ containerd_config_dir }}/{{ containerd_config_file }}"
     regexp: '^(\s*SystemdCgroup\s*=\s*)false'
     line: '\1true'
+  become: true
+  become_user: root
   notify: Restart containerd
