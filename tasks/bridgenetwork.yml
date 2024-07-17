@@ -1,0 +1,21 @@
+---
+- name: Enabled Bridge Network
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.conf
+    regexp: '^#(net\.ipv4\.ip_forward=.*)'
+    line: '\1'
+  become: true
+  become_user: root
+
+- name: Add br_netfilter
+  ansible.builtin.lineinfile:
+    path: /etc/modules-load.d/k8s.conf
+    line: "br_netfilter"
+    state: present
+  become: true
+  become_user: root
+
+- name: Reboot all nodes to implement the Changes
+  ansible.builtin.reboot:
+    reboot_timeout: 600
+  

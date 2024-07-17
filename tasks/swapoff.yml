@@ -11,3 +11,5 @@
     path: /etc/fstab
     regexp: '.*swap.*'
     line: '# \g<0>'
+  become: true
+  become_user: root
