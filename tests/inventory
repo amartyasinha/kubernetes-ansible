@@ -1,12 +1,12 @@
 # currently setup of only one master is supported with this role.
 # support for k8s master clustering will be added soon.
-[k8s-master]
+[k8s-control-plane]
 node1
 
-[k8s-worker]
+[k8s-node]
 node2
 node3
 
 [k8s-common:children]
-k8s-master
-k8s-worker
+k8s-control-plane
+k8s-node

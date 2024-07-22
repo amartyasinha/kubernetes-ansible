@@ -6,10 +6,10 @@
 - name: Include Install task
   ansible.builtin.include_tasks: install.yml
 
-- name: Include k8s-master tasks
-  ansible.builtin.include_tasks: master.yml
+- name: Include k8s-control-plane tasks
+  ansible.builtin.include_tasks: control-plane.yml
   when: inventory_hostname in group['k8s-master']
 
-- name: Include k8s-worker tasks
-  ansible.builtin.include_taks: worker.yml
+- name: Include k8s-node tasks
+  ansible.builtin.include_taks: node.yml
   when: inventory_hostname in group['k8s-worker']
