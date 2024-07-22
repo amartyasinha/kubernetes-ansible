@@ -1,0 +1,53 @@
+---
+
+- name: Init k8s cluster
+- ansible.builtin.command: "kubeadm init --control-plane-endpoint={{ ansible_default_ipv4_address }} --node-name {{ k8s_control_plane_name }} --pod-network-cidr={{ default_cidr }}"
+  become: true
+  become_user: root
+  register: init_var
+  changed_when: init_var.rc != 0
+
+- name: Get {{ ansible_user_id }} user's home
+  ansible.builtin.set_fact:
+    home_dir: ansible_env.HOME
+
+- name: Create .kube dir for {{ ansible_user_id }}
+  ansible.builtin.file:
+    type: directory
+    path: "{{ home_dir }}/.kube"
+    mode: '755'
+
+- name: Register username
+  ansible.builtin.set_fact:
+    curr_user: ansible_env.USER
+
+- name: Copy config file
+  ansible.builtin.copy:
+    src: "/etc/kubernetes/admin.conf"
+    dest: "{{ home_dir }}/.kube/config"
+    owner: "{{ curr_user }}"
+    group: "{{ curr_user }}"
+  become: true
+  become_user: root
+
+- name: Setup Flannel as CNI (default)
+  become: true
+  become_user: root
+  ansible.builtin.command: "kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml"
+  register: flannel_deployed
+  changed_when: flannel_deployed.rc != 0
+  when: not enable_calico | bool
+
+- name: Setup Calico as CNI
+  ansible.builtin.command: "kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml"
+  become: true
+  become_user: root
+  register: calico_deployed
+  changed_when: calico_deployed != 0
+  when: enable_calico | bool
+
+- name: Enable pod scheduling on single node deployment
+  ansible.builtin.command: "kubectl taint nodes --all node-role.kubernetes.io/control-plane-"
+  become: true
+  become_user: root
+  when: "{{ groups['k8s-common'] | length == 1 }}"

@@ -1,5 +1,11 @@
 ---
 # tasks file for kubernetes-ansible
+
+- name: Check for exactly one k8s-control-plane
+  ansible.builtin.fail:
+    msg: "Sorry! We only support one k8s-control-plane now. Please contribute or request for control plane clustering"
+  when: "{{ group[k8s-control-plane] | length != 1 }}"
+
 - name: Include Prequisites
   ansible.builtin.include_tasks: prerequisites.yml
 
@@ -8,8 +14,28 @@
 
 - name: Include k8s-control-plane tasks
   ansible.builtin.include_tasks: control-plane.yml
-  when: inventory_hostname in group['k8s-master']
+  when: inventory_hostname in group['k8s-control-plane']
+
+- name: Generate k8s-cluster-token
+  ansible.builtin.command: "kubeadm token create --print-join-command"
+  become: true
+  become_user: root
+  register: k8s_cluster_token
+  when: inventory_hostname in group['k8s-control-plane']
+
+- name: Set token globally
+  ansible.builtin.set_fact:
+    k8s_cluster_join_command: {{ k8s_cluster_token.stdout }}
 
 - name: Include k8s-node tasks
   ansible.builtin.include_taks: node.yml
-  when: inventory_hostname in group['k8s-worker']
+  when: inventory_hostname in group['k8s-node']
+
+- name: Print nodes
+  ansible.builtin.command: "kubectl get nodes"
+  when: inventory_hostname in group['k8s-control-plane']
+  register: node_output
+
+- name: Print node details
+  ansible.builtin.debug:
+    msg: "{{ node_output.stdout_lines }}"

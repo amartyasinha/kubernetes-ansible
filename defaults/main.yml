@@ -16,3 +16,12 @@ kubernetes_packages: [
                       'kubectl'
                      ]
 
+k8s_control_plane_name: "k8s-master"
+
+flannel_default_cidr: "10.244.0.0/16"
+calico_default_cidr: "192.168.0.0/16"
+
+# flannel will be default CNI. Change this var to true to enable calico
+enable_calico: false
+
+default_cidr: "{{ flannel_default_cidr }} if not enable_calico else {{ calico_default_cidr }}"

@@ -1,0 +1,6 @@
+---
+
+- name: Add node to k8s-cluster
+  ansible.builtin.command: "{{ k8s_cluster_join_command }}"
+  become: true
+  become_user: root
